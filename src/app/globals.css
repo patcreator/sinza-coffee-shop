@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-espresso: #35180b;
+  --color-bean: #2c150a;
+  --color-cinnamon: #923f0c;
+  --color-cream: #f7f0eb;
+  --color-ivory: #fbfbec;
+  --color-ink: #000000;
+  --color-latte: #c79a6b;
+  --color-mocha: #5b3a25;
+  --font-display: ui-serif, Georgia, "Times New Roman", serif;
+}
+
+:root {
+  color-scheme: light;
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #f7f0eb;
+  color: #2c150a;
+}
+
+.dark body {
+  background-color: #170b04;
+  color: #f7f0eb;
+}
+
+::selection {
+  background: #923f0c;
+  color: #fbfbec;
+}
+
+/* Scrollbars */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.5s ease both;
+}
+
+.glass {
+  backdrop-filter: blur(14px);
+  background: rgba(247, 240, 235, 0.72);
+}
+
+.dark .glass {
+  background: rgba(23, 11, 4, 0.72);
+}
