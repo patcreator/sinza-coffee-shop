@@ -71,7 +71,7 @@ export function AiAssistant() {
           <div className="flex items-center gap-2 bg-espresso px-4 py-3 text-cream dark:bg-cinnamon">
             <Bot className="h-4 w-4" />
             <span className="text-sm font-semibold">Sinza Assistant</span>
-            <span className="ml-auto text-[10px] opacity-70">Powered by Gemini</span>
+            <span className="ml-auto text-[10px] opacity-70">Powered by Patcreator</span>
           </div>
 
           <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4 text-sm">

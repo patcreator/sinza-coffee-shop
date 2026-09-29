@@ -4,8 +4,7 @@ import { aiConversations, categories, faqs, menuItems, posts } from "@/db/schema
 import { eq } from "drizzle-orm";
 import { getSettings } from "@/lib/settings";
 import { frw } from "@/lib/utils";
-import OpenAI from "openai";
-import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
+import Groq from "groq-sdk";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -145,68 +144,112 @@ function isTransientOpenAI(status: number, msg: string): boolean {
   );
 }
 
-async function callOpenAIWithRotation(
+
+const GROQ_MODEL =
+  process.env.GROQ_MODEL || "openai/gpt-oss-120b";
+
+function isTransientGroq(status: number, msg: string): boolean {
+  if ([429, 500, 502, 503, 504].includes(status)) return true;
+
+  return /high demand|overloaded|try again|temporarily|unavailable|rate limit/i.test(
+    msg,
+  );
+}
+
+async function callGroq(
   apiKey: string,
   systemPrompt: string,
   history: HistoryItem[],
   question: string,
-): Promise<{ text: string; model: string | null; errors: string[] }> {
+): Promise<{
+  text: string;
+  model: string | null;
+  errors: string[];
+}> {
   const errors: string[] = [];
-  const client = new OpenAI({ apiKey });
 
-  // Built once, with explicit types so `role` is a literal, not a plain string.
-  const messages: ChatCompletionMessageParam[] = [
-    { role: "system", content: systemPrompt },
-    ...history.map(
-      (h): ChatCompletionMessageParam => ({
-        role: h.role === "assistant" ? "assistant" : "user",
-        content: h.content,
-      }),
-    ),
-    { role: "user", content: question },
+  const groq = new Groq({
+    apiKey,
+  });
+
+  const messages = [
+    {
+      role: "system" as const,
+      content: systemPrompt,
+    },
+
+    ...history.map((h) => ({
+      role: h.role === "assistant" ? ("assistant" as const) : ("user" as const),
+      content: h.content,
+    })),
+
+    {
+      role: "user" as const,
+      content: question,
+    },
   ];
 
-  for (const model of OPENAI_MODELS) {
-    for (let attempt = 1; attempt <= 2; attempt++) {
-      try {
-        const completion = await client.chat.completions.create({
-          model,
-          messages,
-          temperature: 0.7,
-          max_tokens: 500,
-        });
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    try {
+      const completion = await groq.chat.completions.create({
+        model: GROQ_MODEL,
+        messages,
+        temperature: 0.7,
+        max_completion_tokens: 1000,
+        reasoning_effort: "medium",
+        stream: false,
+      });
 
-        const text = completion.choices[0]?.message?.content ?? "";
+      const text = completion.choices[0]?.message?.content ?? "";
 
-        if (text) {
-          console.log(`[chat] ✅ answered by ${model} (attempt ${attempt})`);
-          return { text, model, errors };
-        }
+      if (text.trim()) {
+        console.log(
+          `[chat] ✅ answered by Groq ${GROQ_MODEL} (attempt ${attempt})`,
+        );
 
-        errors.push(`${model}: empty response`);
-        console.warn(`[chat] ❌ ${model}: empty response (attempt ${attempt})`);
-        break; // move to next model
-      } catch (e: any) {
-        const status = e?.status || e?.response?.status || 0;
-        const msg = e?.message || "unknown error";
-        const errorMsg = `${model}: ${msg}`;
-        errors.push(errorMsg);
-        console.warn(`[chat] ❌ ${errorMsg} (attempt ${attempt})`);
+        return {
+          text,
+          model: GROQ_MODEL,
+          errors,
+        };
+      }
 
-        // If it's not a transient error (bad model name, auth failure, etc.),
-        // don't retry the same model — move to the next one.
-        if (!isTransientOpenAI(status, msg)) {
-          break;
-        }
+      errors.push(`${GROQ_MODEL}: empty response`);
 
-        if (attempt < 2) {
-          await new Promise((r) => setTimeout(r, 700 * attempt));
-        }
+      console.warn(
+        `[chat] ❌ ${GROQ_MODEL}: empty response (attempt ${attempt})`,
+      );
+
+      break;
+    } catch (e: any) {
+      const status = e?.status || e?.response?.status || 0;
+      const msg = e?.message || "unknown error";
+
+      const errorMsg = `${GROQ_MODEL}: ${msg}`;
+
+      errors.push(errorMsg);
+
+      console.warn(
+        `[chat] ❌ ${errorMsg} (attempt ${attempt})`,
+      );
+
+      if (!isTransientGroq(status, msg)) {
+        break;
+      }
+
+      if (attempt < 2) {
+        await new Promise((resolve) =>
+          setTimeout(resolve, 700 * attempt),
+        );
       }
     }
   }
 
-  return { text: "", model: null, errors };
+  return {
+    text: "",
+    model: null,
+    errors,
+  };
 }
 
 /* =========================================================
@@ -257,7 +300,7 @@ export async function POST(request: Request) {
   }
 
   /* ---- 3. Ask OpenAI ---- */
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = process.env.GROQ_API_KEY;
   let answer = "";
   let source: "ai" | "fallback" | "smalltalk" = "fallback";
   let usedModel: string | null = null;
@@ -288,12 +331,12 @@ STYLE
 CONTEXT
 ${context || "(context unavailable — apologise and offer WhatsApp)"}`;
 
-    const result = await callOpenAIWithRotation(
-      apiKey,
-      systemPrompt,
-      history,
-      question,
-    );
+const result = await callGroq(
+  apiKey,
+  systemPrompt,
+  history,
+  question,
+);
 
     if (result.text) {
       answer = result.text;
