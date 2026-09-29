@@ -16,6 +16,7 @@ import {
   UtensilsCrossed,
 } from "lucide-react";
 import { FaInstagram, FaWhatsapp } from "react-icons/fa6";
+import Hero from "@/components/Hero";
 
 export const dynamic = "force-dynamic";
 
@@ -31,81 +32,7 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* ---------------- HERO ---------------- */}
-      <section className="relative isolate flex min-h-[86vh] items-center overflow-hidden">
-        <video
-          className="absolute inset-0 -z-20 h-full w-full object-cover"
-          autoPlay
-          muted
-          loop
-          playsInline
-          poster={s.heroPoster}
-        >
-          <source src={s.heroVideo} type="video/mp4" />
-        </video>
-        {/* readability overlay */}
-        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/75 via-black/55 to-[#2c150a]/90" />
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,transparent_10%,rgba(0,0,0,0.65)_100%)]" />
-
-        <div className="mx-auto w-full max-w-7xl px-4 py-20 text-cream">
-          <p className="animate-fade-up inline-flex items-center gap-2 rounded-full border border-cream/30 bg-black/30 px-4 py-1.5 text-xs uppercase tracking-[0.2em] backdrop-blur">
-            <MapPin className="h-3.5 w-3.5" /> Gisozi · Kwa Gakire · Kigali
-          </p>
-          <h1 className="animate-fade-up mt-5 max-w-3xl text-4xl font-semibold leading-[1.05] tracking-tight drop-shadow-lg sm:text-6xl lg:text-7xl">
-             {s.siteName} 
-            <span className="mt-3 block text-xl font-normal opacity-90 sm:text-2xl">Coffee, Meals</span>
-          </h1>
-          <p className="animate-fade-up mt-5 max-w-xl text-base opacity-90 sm:text-lg">
-            Freshly roasted Rwandan beans, all-day meals, cocktails and a warm corner of Kigali.
-            Order online, pick your waiter at the table, or send it straight to WhatsApp.
-          </p>
-
-          <div className="animate-fade-up mt-8 flex flex-wrap gap-3">
-            <Link
-              href="/menu"
-              className="inline-flex items-center gap-2 rounded-full bg-cinnamon px-6 py-3 text-sm font-semibold text-ivory transition hover:opacity-90"
-            >
-              <UtensilsCrossed className="h-4 w-4" /> View the menu
-            </Link>
-            <Link
-              href="/reservation"
-              className="inline-flex items-center gap-2 rounded-full border border-cream/40 bg-white/10 px-6 py-3 text-sm font-semibold backdrop-blur transition hover:bg-white/20"
-            >
-              <CalendarDays className="h-4 w-4" /> Reserve a table
-            </Link>
-            <a
-              href={`https://wa.me/${s.whatsapp}`}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-full bg-[#25D366] px-4 py-3 text-sm font-semibold text-black transition hover:opacity-90"
-            >
-              <FaWhatsapp className="h-4 w-4" />
-            </a>
-            <a
-              href={s.instagram}
-              target="_blank"
-              rel="noreferrer"
-              aria-label="Instagram"
-              className="grid h-12 w-12 place-items-center rounded-full border border-cream/40 bg-white/10 backdrop-blur transition hover:bg-white/20"
-            >
-              <FaInstagram className="h-5 w-5" />
-            </a>
-          </div>
-
-          <nav className="animate-fade-up mt-12 flex flex-wrap gap-x-6 gap-y-2 text-sm">
-            {[
-              ["/menu?category=all&group=drinks", "Menu › Drinks"],
-              ["/menu?category=all&group=food", "Menu › Food"],
-              ["/reservation", "Reservation"],
-            ].map(([href, label]) => (
-              <Link key={label} href={href} className="opacity-80 underline-offset-4 transition hover:opacity-100 hover:underline">
-                {label}
-              </Link>
-            ))}
-          </nav>
-        </div>
-      </section>
-
+      <Hero s={s} />
       {/* ---------------- QUICK CATEGORIES ---------------- */}
       <section className="mx-auto max-w-7xl px-4 py-16">
         <div className="flex items-end justify-between gap-4">

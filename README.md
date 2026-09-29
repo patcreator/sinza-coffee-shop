@@ -73,7 +73,7 @@ All of these live in `.env` (already scaffolded with empty values):
 ```env
 DATABASE_URL=postgresql://…            # Neon or local Postgres
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
-NEXT_PUBLIC_WHATSAPP_NUMBER=250788000000
+NEXT_PUBLIC_WHATSAPP_NUMBER=250781647865
 AUTH_SECRET=long-random-string
 ADMIN_EMAILS=admin@sinzacoffee.rw      # comma separated → auto-promoted to admin
 

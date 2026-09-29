@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { db } from "@/db";
 import { galleries } from "@/db/schema";
 import { asc, desc } from "drizzle-orm";
+import GalleryGrid, { type GalleryItem } from "@/components/gallery-grid";
 
 export const metadata: Metadata = {
   title: "Gallery",
@@ -17,6 +17,17 @@ export default async function GalleryPage({ searchParams }: { searchParams: Prom
   const rows = await db.select().from(galleries).orderBy(asc(galleries.position), desc(galleries.takenAt));
   const types = [...new Set(rows.map((r) => r.type))];
   const visible = type ? rows.filter((r) => r.type === type) : rows;
+
+  // Dates must be serialised before crossing the server -> client boundary.
+  const items: GalleryItem[] = visible.map((g) => ({
+    id: g.id,
+    title: g.title,
+    description: g.description,
+    url: g.url,
+    kind: g.kind,
+    type: g.type,
+    takenAt: g.takenAt ? new Date(g.takenAt).toISOString() : null,
+  }));
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-14">
@@ -39,39 +50,9 @@ export default async function GalleryPage({ searchParams }: { searchParams: Prom
         ))}
       </div>
 
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {visible.map((g) => (
-          <figure key={g.id} className="overflow-hidden rounded-3xl border border-espresso/12 bg-ivory dark:border-cream/12 dark:bg-white/5">
-            <div className="relative aspect-[4/3] bg-espresso/10">
-              {g.kind === "video" ? (
-                <video className="h-full w-full object-cover" controls>
-                  <source src={g.url} />
-                </video>
-              ) : (
-                <Image src={g.url} alt={g.title} fill className="object-cover" sizes="400px" />
-              )}
-            </div>
-            <figcaption className="p-4">
-              <h2 className="font-semibold">{g.title}</h2>
-              <p className="mt-1 text-sm opacity-70">{g.description}</p>
-              <p className="mt-2 text-xs opacity-50">
-                {g.type} ·{" "}
-                {g.takenAt
-                  ? new Date(g.takenAt).toLocaleString("en-GB", {
-                      day: "2-digit",
-                      month: "short",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })
-                  : ""}
-              </p>
-            </figcaption>
-          </figure>
-        ))}
-      </div>
+      <GalleryGrid items={items} />
 
-      {visible.length === 0 && <p className="py-20 text-center opacity-70">No media yet.</p>}
+      {items.length === 0 && <p className="py-20 text-center opacity-70">No media yet.</p>}
     </div>
   );
 }

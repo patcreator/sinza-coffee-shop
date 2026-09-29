@@ -84,7 +84,7 @@ export function PayPanel({
       {method !== "card" && (
         <input
           className={`${inputClass} mt-3`}
-          placeholder="Mobile money number e.g. 0788123456"
+          placeholder="Mobile money number e.g. 250781647865"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
         />

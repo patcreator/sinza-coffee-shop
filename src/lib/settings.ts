@@ -40,9 +40,9 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   heroPoster: "/brand/hero.jpg",
   primaryColor: "#35180B",
   accentColor: "#923F0C",
-  phone: "+250 788 000 000",
-  whatsapp: "250788000000",
-  email: "hello@sinzacoffeeshop.rw",
+  phone: "+250 781 647 865",
+  whatsapp: "250781647865",
+  email: "info@whiterockrw.com",
   address: "Gisozi (Kwa Gakire), Kigali, Rwanda",
   mapEmbed:
     "https://www.google.com/maps?q=-1.9286899,30.0643295&hl=en&z=17&output=embed",
@@ -52,8 +52,8 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   instagram: "https://www.instagram.com/sinzacoffeeshop/",
   threads: "https://www.threads.com/@sinzacoffeeshop",
   tiktok: "https://www.tiktok.com/@sinzacoffeeshop",
-  facebook: "",
-  twitter: "",
+  facebook: "https://web.facebook.com/jado.sinza",
+  twitter: "https://x.com/JadoSinza",
   defaultLocale: "en",
 };
 

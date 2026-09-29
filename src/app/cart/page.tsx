@@ -206,7 +206,7 @@ export default function CartPage() {
                 setMode("waiter");
                 if (!waiters.length) setScanPrompt(true);
               }}
-              className="flex w-full items-center gap-3 rounded-2xl border border-espresso/15 p-3 text-left text-sm transition hover:border-cinnamon dark:border-cream/15"
+              className="flex w-full items-center gap-3 rounded-2xl border border-espresso/15 p-3 text-left text-sm transition hover:border-cinnamon dark:border-cream/15 hidden"
             >
               <QrCode className="h-5 w-5 text-cinnamon" />
               <span>
